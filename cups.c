@@ -42,7 +42,7 @@ bzero(&(home.sin_zero),8);
 ////////////////////////////////////////////////////////////////////
 
 
-int allow_non_root_use = 1;
+int allow_non_root_use = 0;
 
 if (allow_non_root_use == 1)	
 {
